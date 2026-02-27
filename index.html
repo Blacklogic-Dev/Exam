@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Virtual Intelligence - Digital Examination Portal</title>
+
+<style>
+    body {
+        background-color: #ffffff;
+        font-family: "Courier New", monospace;
+        margin: 0;
+        padding: 0;
+        color: #000;
+    }
+
+    .logo {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        margin-top: 40px;
+        letter-spacing: 3px;
+    }
+
+    .subtitle {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .container {
+        width: 80%;
+        margin: auto;
+        padding-bottom: 60px;
+    }
+
+    .section-title {
+        margin-top: 40px;
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+    }
+
+    input, textarea {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        border: 1px solid #000;
+    }
+
+    textarea {
+        height: 120px;
+        resize: vertical;
+    }
+
+    .question {
+        margin-top: 25px;
+        font-weight: bold;
+    }
+
+    button {
+        margin-top: 30px;
+        padding: 15px 30px;
+        font-family: "Courier New", monospace;
+        font-size: 16px;
+        cursor: pointer;
+        border: 1px solid #000;
+        background-color: #000;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #333;
+    }
+
+    .review-box {
+        margin-top: 40px;
+        border: 1px solid #000;
+        padding: 20px;
+        white-space: pre-wrap;
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="logo">VIRTUAL INTELLIGENCE</div>
+<div class="subtitle">Advanced Digital Answer Submission Portal</div>
+
+<div class="container">
+
+<form id="examForm">
+
+<div class="section-title">Student Information</div>
+
+<input type="text" id="fullname" placeholder="Name & Surname" required>
+<input type="text" id="studentid" placeholder="Student ID" required>
+<input type="text" id="idnumber" placeholder="ID Number" required>
+
+<div class="section-title">Answer Questions</div>
+
+<div id="questions"></div>
+
+<button type="button" onclick="reviewAnswers()">Review Answers</button>
+<button type="button" onclick="submitAnswers()">Submit Answers</button>
+
+<div class="review-box" id="reviewBox"></div>
+
+</form>
+
+</div>
+
+<script>
+
+// Generate 18 questions dynamically
+let questionContainer = document.getElementById("questions");
+for (let i = 1; i <= 18; i++) {
+    questionContainer.innerHTML += `
+        <div class="question">Question ${i}</div>
+        <textarea id="q${i}" oninput="autoSave()"></textarea>
+    `;
+}
+
+// Auto-save to localStorage
+function autoSave() {
+    localStorage.setItem("examData", JSON.stringify(getFormData()));
+}
+
+// Load saved data
+window.onload = function() {
+    let saved = localStorage.getItem("examData");
+    if (saved) {
+        let data = JSON.parse(saved);
+        document.getElementById("fullname").value = data.fullname || "";
+        document.getElementById("studentid").value = data.studentid || "";
+        document.getElementById("idnumber").value = data.idnumber || "";
+        for (let i = 1; i <= 18; i++) {
+            document.getElementById("q" + i).value = data["q" + i] || "";
+        }
+    }
+};
+
+function getFormData() {
+    let data = {
+        fullname: document.getElementById("fullname").value,
+        studentid: document.getElementById("studentid").value,
+        idnumber: document.getElementById("idnumber").value
+    };
+    for (let i = 1; i <= 18; i++) {
+        data["q" + i] = document.getElementById("q" + i).value;
+    }
+    return data;
+}
+
+// Review before submit
+function reviewAnswers() {
+    let data = getFormData();
+
+    if (!data.fullname || !data.studentid || !data.idnumber) {
+        alert("Please complete student information.");
+        return;
+    }
+
+    let reviewText =
+        "VIRTUAL INTELLIGENCE EXAM SUBMISSION\n\n" +
+        "Name: " + data.fullname + "\n" +
+        "Student ID: " + data.studentid + "\n" +
+        "ID Number: " + data.idnumber + "\n\n";
+
+    for (let i = 1; i <= 18; i++) {
+        reviewText += "Q" + i + ":\n" + data["q" + i] + "\n\n";
+    }
+
+    let reviewBox = document.getElementById("reviewBox");
+    reviewBox.style.display = "block";
+    reviewBox.textContent = reviewText;
+}
+
+// Submit via WhatsApp
+function submitAnswers() {
+    let reviewBox = document.getElementById("reviewBox");
+    if (reviewBox.style.display === "none") {
+        alert("Please review answers before submitting.");
+        return;
+    }
+
+    let encoded = encodeURIComponent(reviewBox.textContent);
+    window.open("https://wa.me/27606614909?text=" + encoded, "_blank");
+
+    localStorage.removeItem("examData");
+}
+
+</script>
+
+</body>
+</html>
